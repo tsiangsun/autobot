@@ -6,6 +6,7 @@ import math
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
+# Force matplotlib to not use any Xwindows backend
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -505,7 +506,7 @@ def error():
 
 #========================================================================================
 if __name__ == '__main__':
-    app.debug = True
+    #app.debug = True
     app.run(port=33507)
 
 

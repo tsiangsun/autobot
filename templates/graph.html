@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Get Car Deals - My Autobot!</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link
+    href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css"
+    rel="stylesheet" type="text/css">
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
+    <style>
+      body {
+          font: 400 15px Lato, sans-serif;
+          line-height: 1.8;
+          color: #353535;
+      }
+      h2 {
+          font-size: 24px;
+          text-transform: uppercase;
+          color: #303030;
+          font-weight: 600;
+          margin-bottom: 30px;
+      }
+      h4 {
+          font-size: 19px;
+          line-height: 1.375em;
+          color: #303030;
+          font-weight: 400;
+          margin-bottom: 30px;
+      }  
+      .jumbotron {
+          background-color: #5353c6;
+          color: #fff;
+          padding: 100px 25px;
+          font-family: Montserrat, sans-serif;
+      }
+      .container-fluid {
+          padding: 60px 50px;
+      }
+      .bg-grey {
+          background-color: #f6f6f6;
+      }
+      .logo-small {
+          color: #5353c6;
+          font-size: 50px;
+      }
+      .logo {
+          color: #5353c6;
+          font-size: 200px;
+      }
+      .thumbnail {
+          padding: 0 0 15px 0;
+          border: none;
+          border-radius: 0;
+      }
+      .thumbnail img {
+          width: 100%;
+          height: 100%;
+          margin-bottom: 10px;
+      }
+      .carousel-control.right, .carousel-control.left {
+          background-image: none;
+          color: #5353c6;
+      }
+      .carousel-indicators li {
+          border-color: #5353c6;
+      }
+      .carousel-indicators li.active {
+          background-color: #5353c6;
+      }
+      .item h4 {
+          font-size: 19px;
+          line-height: 1.375em;
+          font-weight: 400;
+          font-style: italic;
+          margin: 70px 0;
+      }
+      .item span {
+          font-style: normal;
+      }
+      .panel {
+          border: 1px solid #5353c6; 
+          border-radius:0 !important;
+          transition: box-shadow 0.5s;
+      }
+      .panel:hover {
+          box-shadow: 5px 0px 40px rgba(0,0,0, .2);
+      }
+      .panel-footer .btn:hover {
+          border: 1px solid #5353c6;
+          background-color: #fff !important;
+          color: #5353c6;
+      }
+      .panel-heading {
+          color: #fff !important;
+          background-color: #5353c6 !important;
+          padding: 10px;
+          border-bottom: 1px solid transparent;
+          border-top-left-radius: 0px;
+          border-top-right-radius: 0px;
+          border-bottom-left-radius: 0px;
+          border-bottom-right-radius: 0px;
+      }
+      .panel-footer {
+          background-color: white !important;
+      }
+      .panel-footer h3 {
+          font-size: 32px;
+      }
+      .panel-footer h4 {
+          color: #aaa;
+          font-size: 14px;
+      }
+      .panel-footer .btn {
+          margin: 15px 0;
+          background-color: #5353c6;
+          color: #fff;
+      }
+      .navbar {
+          margin-bottom: 0;
+          background-color: #5353c6;
+          z-index: 9999;
+          border: 0;
+          font-size: 12px !important;
+          line-height: 1.42857143 !important;
+          letter-spacing: 4px;
+          border-radius: 0;
+          font-family: Montserrat, sans-serif;
+      }
+      .navbar li a, .navbar .navbar-brand {
+          color: #fff !important;
+      }
+      .navbar-nav li a:hover, .navbar-nav li.active a {
+          color: #5353c6 !important;
+          background-color: #fff !important;
+      }
+      .navbar-default .navbar-toggle {
+          border-color: transparent;
+          color: #fff !important;
+      }
+      footer .glyphicon {
+          font-size: 20px;
+          margin-bottom: 20px;
+          color: #5353c6;
+      }
+      @media screen and (max-width: 768px) {
+        .col-sm-4 {
+          text-align: center;
+          margin: 25px 0;
+        }
+        .btn-lg {
+            width: 100%;
+            margin-bottom: 35px;
+        }
+      }
+      @media screen and (max-width: 480px) {
+        .logo {
+            font-size: 150px;
+        }
+      }
+  </style>
+  
+  </head>
+  <body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
+          <a class="navbar-brand" href="index">My Autobot</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#locations">LOCATIONS</a></li>
+            <li><a href="#traffic">POST TRAFFIC</a></li>
+            <li><a href="#distribution">DISTRIBUTION</a></li>
+            <li><a href="#deals">SEE DEALS</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    
+    <div id="locations" class="container-fluid text-center">
+        <h2>1. Price distribution: different cities </h2>
+        <div class="row text-center">
+            <div class="col-sm-10 col-sm-offset-1 col-xs-12">
+                <img src="data:image/png;base64,{{img_data}}" style="width:1000px;"/>
+            </div>
+        </div>
+    </div>
+        
+        
+    <div id="traffic" class="container-fluid text-center">
+        <h2>2. Post traffic </h2>
+        <div class="row text-center">
+            <div class="col-sm-8 col-sm-offset-3 col-xs-12">
+                {{ div | safe }}
+                {{ script | safe }}
+            </div>
+        </div>
+    </div>
+
+    <div id="distribution" class="container-fluid text-center">
+        <h2>3. Price distribution: year and miles </h2>
+        <div class="row text-center">
+            <div class="col-sm-8 col-sm-offset-3 col-xs-12">
+                {{ div1 | safe }}
+                {{ script1 | safe }}
+            </div>
+        </div>
+    </div>
+        
+    <div id="deals" class="container-fluid text-center">
+        <h2>Ready to see some deals? </h2>
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3 col-xs-12">
+              <div class="panel panel-default text-center">
+                <div class="panel-heading">
+                    <h1>Get Car Deals</h1>
+                </div>
+                
+                <div class="panel-body">
+                  <h4 style="color:black">Please select priority:</h4>
+                        <form class="form-horizontal" id='input' method='post' action='result'>	
+                                <div class="form-group">
+                                <label class="control-label col-sm-3" for="selectprio">Priority :</label>
+                                <div class="control-label col-sm-9">
+                                    <select class="form-control" id="selectprio" name="priority">
+                                        <option value="YEAR" selected> Newer Year (default)</option>
+                                        <option value="POSTTIME"> More Recent Post</option>
+                                        <option value="MILES"> Lower Mileage</option>
+                                        <option value="PRICE"> Lower Price</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <button class="btn btn-lg" type="submit">See Deals!</button>
+                                <!-- <input type="submit" value="Submit"> -->
+                            </div>
+                        </form>
+                </div>
+                
+            </div>
+        </div>
+	</div>
+            <!--    <form id='input' method='post' action='result'>	
+                        <h4 style="color:black">Please select priority: </h4>
+                        <select name="priority">
+                                <option value="POSTTIME"> Post time priority (default)</option>
+                                <option value="YEAR"> Year priority</option>
+                                <option value="MILES"> Mileage priority</option>
+                                <option value="PRICE"> Budget priority</option>
+                        </select>
+                        <br><br>		    			
+                            <input type="submit" value="See deals!">
+                        </p> <br><br>
+                </form>
+            -->
+    <footer class="container-fluid text-center">
+      <a href="#myPage" title="To Top">
+        <span class="glyphicon glyphicon-chevron-up"></span>
+      </a>
+      <p>Back to Top</p>
+    </footer>
+	
+	<div id="home" class="container-fluid text-center">
+        <h4><a href='index'>Return to homepage</a></h4>
+    </div>
+    
+
+  </body>
+</html>
+
+

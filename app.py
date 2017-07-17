@@ -16,9 +16,13 @@ from bokeh.layouts import gridplot
 from bokeh.embed import components 
 from bokeh.models import HoverTool, TapTool, OpenURL, Range1d, FixedTicker, FuncTickFormatter
 from datetime import datetime
+import sys
+import logging
 
 matplotlib.rcParams['savefig.dpi'] = 200
 
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 
 app = Flask(__name__)

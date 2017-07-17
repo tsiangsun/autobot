@@ -20,6 +20,7 @@ import sys
 import logging
 
 matplotlib.rcParams['savefig.dpi'] = 200
+matplotlib.use('Agg')
 
 
 app = Flask(__name__)

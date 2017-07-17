@@ -21,11 +21,11 @@ import logging
 
 matplotlib.rcParams['savefig.dpi'] = 200
 
-app.logger.addHandler(logging.StreamHandler(sys.stdout))
-app.logger.setLevel(logging.ERROR)
-
 
 app = Flask(__name__)
+
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 app.vars={}
 

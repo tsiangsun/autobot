@@ -5,6 +5,7 @@ import numpy as np
 import math
 import pandas as pd
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -20,7 +21,6 @@ import sys
 import logging
 
 matplotlib.rcParams['savefig.dpi'] = 200
-matplotlib.use('Agg')
 
 
 app = Flask(__name__)

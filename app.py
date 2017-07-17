@@ -64,7 +64,7 @@ def graph():
     '''
     
     #--------------------------------------------
-    myfile='./CAR_PRICE_DATA_1.csv'
+    myfile='CAR_PRICE_DATA_1.csv'
     app.df = pd.read_csv(myfile) #, low_memory=False
 
     #p1 = figure(title='Post traffic %s' % city, x_axis_label='Posts', y_axis_label='Weekday', tools= TOOLS)
@@ -500,6 +500,7 @@ def error():
 
 #========================================================================================
 if __name__ == '__main__':
+    app.debug = True
     app.run(port=33507)
 
 

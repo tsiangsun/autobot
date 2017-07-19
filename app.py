@@ -17,9 +17,18 @@ from bokeh.plotting import figure,ColumnDataSource
 from bokeh.layouts import gridplot
 from bokeh.embed import components 
 from bokeh.models import HoverTool, TapTool, OpenURL, Range1d, FixedTicker, FuncTickFormatter
+from sklearn import base
+from sklearn import datasets, linear_model, utils, preprocessing
+from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
+from sklearn import neighbors
+from sklearn import ensemble
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.feature_extraction import DictVectorizer
 from datetime import datetime
 import sys
 import logging
+import dill
+import os
 
 matplotlib.rcParams['savefig.dpi'] = 200
 
@@ -42,6 +51,62 @@ def index():
     return render_template('index.html')
  
 
+#========================================================================================   
+@app.route('/value', methods=['POST'])
+def carvalue():
+    app.vars['make'] = request.form['make'].lower()
+    app.vars['model'] = request.form['model'].lower()
+    app.vars['year'] = int(request.form['year'])
+    app.vars['miles'] = int(request.form['miles'])
+    app.vars['city'] = request.form['city']
+    make = app.vars['make']
+    model = app.vars['model']
+    city = app.vars['city']
+    year = app.vars['year']
+    miles = app.vars['miles']
+
+    state_dict = {'sfbay': 'CA', 'losangeles': 'CA', 'newyork': 'NY', 'seattle': 'WA', 'orangecounty': 'CA', 'sandiego':'CA',
+              'chicago': 'IL', 'sacramento':'CA', 'portland': 'OR', 'phoenix': 'AZ', 'washingtondc': 'DC', 'atlanta': 'GA',
+              'miami': 'FL', 'boston': 'MA', 'dallas': 'TX', 'inlandempire': 'CA', 'denver': 'CO', 'minneapolis': 'MN', 
+              'austin': 'TX', 'houston': 'TX', 'tampa': 'FL', 'orlando': 'FL', 'newjersey': 'NJ', 'philadelphia': 'PA', 
+              'lasvegas': 'NV', 'detroit': 'MI', 'stlouis': 'MO'}
+
+    if make =='' or model=='' or request.form['year']=='' or request.form['miles']=='':
+        return redirect('/error')
+    
+    X_mycar = []
+    state = state_dict[city]
+    dic = dict()
+    md = datetime.today()
+    dic['POSTDAY'] = md.timetuple().tm_yday
+    dic['CITY'] = city
+    dic['STATE'] = state
+    dic['MAKE'] = make
+    dic['MODEL'] = model
+    dic['YEAR'] = int(year)
+    dic['MILES'] = int(miles)
+    X_mycar.append(dic)
+
+
+    myfile='CAR_PRICE_DATA_1.csv'
+    app.df = pd.read_csv(myfile) 
+
+
+    if not os.path.isfile('ensemble_pipeline_%s_%s.dill' %(make, model)) :
+        return redirect('/error')
+    
+    ensemble_pipeline = dill.load(open('ensemble_pipeline_%s_%s.dill' %(make, model), 'r'))
+    
+    y_mycar = ensemble_pipeline.predict(X_mycar)
+    predprice = y_mycar[0]
+    predprice = int(round(predprice, -1))
+
+    p = plot_price_distr()
+    script, div = components(p)
+    
+    return render_template('value.html', script=script, div=div, year=year, make=make.title(), model=model.title(), predprice=predprice)
+
+
 
 
 #========================================================================================   
@@ -51,7 +116,7 @@ def graph():
     app.vars['model'] = request.form['model'].lower()
     app.vars['budget'] = int(request.form['budget'])
     app.vars['city'] = request.form['city']
-    if app.vars['make'] =='' or app.vars['model']=='' or app.vars['budget']=='':
+    if app.vars['make'] =='' or app.vars['model']=='' or request.form['budget']=='':
         return redirect('/error')
     make = app.vars['make']
     model = app.vars['model']
@@ -118,7 +183,7 @@ def showresult():
     dfi = df3.sort_values(by=['YEAR','POSTTIME'],ascending=[False, False])[
       ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]
 
-    #dfi['IMAGE'] = dfi['IMGLINK'].apply(lambda x: '<img src="{}"/>'.format(x) if x else '')
+    #dfi['IMAGE'] = dfi['IMGLINK'].apply(lambda x: '<img src="{}" />'.format(x) if x else '') #
     dfresult = dfi[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
     dfresult['PRICEPRED'] = dfresult.PRICEPRED.astype(int)
 
@@ -138,6 +203,19 @@ def showresult():
 
     return render_template('result.html', script=script, div=div, datatable=df_html, make=make.title(), model=model.title())
 
+
+
+
+@app.route('/contact', methods=['POST'])
+def emailadmin():
+    #to be constructed
+
+    
+    app.vars['email'] = request.form['email']
+    app.vars['name'] = request.form['name']
+    app.vars['comments'] = request.form['comments']
+
+    return render_template('contact.html', name=app.vars['name'])
 
 
 

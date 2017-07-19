@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <!-- Theme Made By www.w3schools.com - No Copyright -->
-  <title>Welcome to My Autobot!</title>
+  <title>Thank you - Autobot!</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
@@ -172,7 +173,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>                        
           </button>
-          <a class="navbar-brand" href="index">My Autobot</a>
+          <a class="navbar-brand" href="index">Autobot</a>
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
           <ul class="nav navbar-nav navbar-right">
@@ -183,7 +184,7 @@
     </nav>
   
     <div id="thankyou" class="container-fluid text-center">
-        <h2>Thank you {{ name }} for using My Autobot!</h2>
+        <h2>Thank you {{ name }} for using Autobot!</h2>
         <div class="row text-center">
             <div class="col-sm-8 col-sm-offset-2 col-xs-12">
                 We have sent you the information you requested to {{ email }}

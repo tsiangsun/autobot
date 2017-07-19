@@ -17,13 +17,7 @@ from bokeh.plotting import figure,ColumnDataSource
 from bokeh.layouts import gridplot
 from bokeh.embed import components 
 from bokeh.models import HoverTool, TapTool, OpenURL, Range1d, FixedTicker, FuncTickFormatter
-from sklearn import base
-from sklearn import datasets, linear_model, utils, preprocessing
-from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
-from sklearn import neighbors
-from sklearn import ensemble
-from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.feature_extraction import DictVectorizer
+
 from datetime import datetime
 import sys
 import logging
@@ -54,6 +48,14 @@ def index():
 #========================================================================================   
 @app.route('/value', methods=['POST'])
 def carvalue():
+    import numpy as np 
+    from sklearn import base
+    from sklearn import datasets, linear_model, utils, preprocessing
+    from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
+    from sklearn import neighbors
+    from sklearn import ensemble
+    from sklearn.pipeline import Pipeline, FeatureUnion
+    from sklearn.feature_extraction import DictVectorizer
     app.vars['make'] = request.form['make'].lower()
     app.vars['model'] = request.form['model'].lower()
     app.vars['year'] = int(request.form['year'])

@@ -48,7 +48,7 @@ def index():
 #========================================================================================   
 @app.route('/value', methods=['POST'])
 def carvalue():
-    import numpy 
+    import numpy as np
     from sklearn import base
     from sklearn import datasets, linear_model, utils, preprocessing
     from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin

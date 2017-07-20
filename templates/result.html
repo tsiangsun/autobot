@@ -181,7 +181,7 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#figure">FIGURE</a></li>
+            <li><a href="#deals">DEALS</a></li>
             <li><a href="#table">TABLE</a></li>
             <li><a href="#emailservice">EMAIL SERVICE</a></li>
           </ul>
@@ -190,8 +190,8 @@
     </nav>
     
     
-    <div id="figure" class="container-fluid text-center">
-        <h2>Figure: deals of {{ make }} {{model}} </h2>
+    <div id="deals" class="container-fluid text-center">
+        <h2>Selected deals of {{ make }} {{model}} </h2>
         <div class="row text-center">
             <div class="col-sm-6 col-sm-offset-3 col-xs-12">
                 {{ div | safe }}
@@ -200,6 +200,16 @@
         </div>
     </div>
     
+    <div id="details" class="container-fluid text-center">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3 col-xs-12">
+                <form class="form-horizontal" id='input' method='post' action='graph'>	
+                        <button class="btn btn-lg" type="submit">See more details</button>
+                </form>
+            </div>
+        </div>
+	</div> 
+	
     <div id="table" class="container-fluid text-center">
         <h2>Table: deals of {{ make }} {{model}} </h2>
         <div class="row text-center">

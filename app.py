@@ -114,12 +114,7 @@ def carvalue():
 #========================================================================================   
 @app.route('/graph', methods=['POST'])
 def graph():
-    app.vars['make'] = request.form['make'].lower()
-    app.vars['model'] = request.form['model'].lower()
-    app.vars['budget'] = int(request.form['budget'])
-    app.vars['city'] = request.form['city']
-    if app.vars['make'] =='' or app.vars['model']=='' or request.form['budget']=='':
-        return redirect('/error')
+    
     make = app.vars['make']
     model = app.vars['model']
     city = app.vars['city']
@@ -167,8 +162,13 @@ def graph():
 #========================================================================================   
 @app.route('/result', methods=['POST'])
 def showresult():
-    app.vars['priority'] = request.form['priority']
-    priority = app.vars['priority']
+    app.vars['make'] = request.form['make'].lower()
+    app.vars['model'] = request.form['model'].lower()
+    app.vars['budget'] = int(request.form['budget'])
+    app.vars['city'] = request.form['city']
+    if app.vars['make'] =='' or app.vars['model']=='' or request.form['budget']=='':
+        return redirect('/error')
+
     make = app.vars['make'] 
     model = app.vars['model'] 
     budget = app.vars['budget'] 
@@ -206,6 +206,11 @@ def showresult():
     return render_template('result.html', script=script, div=div, datatable=df_html, make=make.title(), model=model.title())
 
 
+
+@app.route('/method', methods=['GET','POST'])
+def algorithm():
+
+    return render_template('method.html')
 
 
 @app.route('/contact', methods=['POST'])

@@ -179,8 +179,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#about">ABOUT</a></li>
         <li><a href="#services">SERVICES</a></li>
-        <li><a href="#algorithm">ALGORITHM</a></li>
-        <li><a href="#product">PRODUCT</a></li>
+        <li><a href="#products">PRODUCTS</a></li>
         <li><a href="#contact">CONTACT</a></li>
       </ul>
     </div>
@@ -190,6 +189,7 @@
 <div class="jumbotron text-center">
   <h1>Autobot</h1> 
   <h3>" Find used car deals faster and easier ! "</h3> 
+  <h3>Xiang Sun</h3>
 </div>
 
 
@@ -205,7 +205,7 @@
     </div>
     <div class="col-sm-8">
       <h2>ABOUT</h2>
-        <h3> "Autobot" App can help you with the following problem:</h3>
+        <h3> <b>Autobot</b> app can help you with the following problems:</h3>
         <h4> Do you find it hard to tell a used car's value?<br>
          Do you find it impossible to memorize or compare cars' details? <br>
          Do you find car deals are often very short-lived? 
@@ -251,7 +251,10 @@
       <span class="glyphicon glyphicon-education logo-small"></span>
       <h4>Machine Learning</h4>
       <p>Predict price and filter out deals<br>
-      by learning data scraped from Craigslist
+      by learning data scraped from Craigslist 
+        <form class="form-horizontal" id='input' method='get' action='method'>	
+            <button class="btn" type="submit">See more details</button>
+        </form>
       </p>
     </div>
     <div class="col-sm-4">
@@ -267,48 +270,12 @@
   </div>
 </div>
 
-<!-- Container (algorithm Section) -->
-<div id="algorithm" class="container-fluid text-center">
-  <h2>ALGORITHM</h2><br>
-  <div class="row">
-    <div class="col-sm-10 col-sm-offset-1 col-xs-12">
-      <h4>We use machine learning to predict price and filter out deals</h4>
-      <blockquote>
-          <p class="text-justify">For example, Toyota Camry, we show simple linear regression (left) 
-          and more advanced mixed methods including <font color="#5353c6"><strong>linear regression, Random Forest and K-Neighbors</strong></font> (right). 
-        Features considered include <font color="#5353c6">postdate, make, model, year, mileage, city, state, 
-        attributes (title status: clean, color, condition: excellent/good, 
-        transmission: auto/manual, fuel: gas/dissel, cylinders: v4/v6, drive: fwd/rwd/awd, ...).</font>  
-        We choose the winner: the mixed method!</p>
-    </blockquote>
-    </div>
-  </div>
-  <div class="row text-center">
-    <div class="col-sm-5 col-sm-offset-1 col-xs-6">
-      <div class="thumbnail">
-        <img src="/static/ml-linear-camry.png" alt="Linear regression" width="400" height="300">
-        <p><strong>Linear Regression</strong></p>
-        <span class="glyphicon glyphicon-remove logo-small"></span>
-        <p>Does not predict price well</p>
-      </div>
-    </div>
-    <div class="col-sm-5 col-xs-6">
-      <div class="thumbnail">
-        <img src="/static/ml-nonlinear-camry.png" alt="Ensemble regression" width="400" height="300">
-        <p><strong>Mixed method</strong></p>
-        <span class="glyphicon glyphicon-ok logo-small"></span>
-        <p>Predict the price accurately</p>
-      </div>
-    </div>
-  </div>
-  
-</div>
 
 <!-- Container (GET CAR DEALS Section) -->
-<div id="product" class="container-fluid bg-grey">
+<div id="products" class="container-fluid">
   <div class="text-center">
-    <h2>PRODUCT</h2>
-    <h4>Choose an Autobot that works for you:</h4>
+    <h2>PRODUCTS</h2>
+    <h4>Choose an <b>Autobot</b> that works for you:</h4>
   </div>
   <div class="row">
     <div class="col-sm-5 col-sm-offset-1 col-xs-12">
@@ -319,7 +286,7 @@
         <div class="panel-body">
           <h4 style="color:black">Please enter following info for filtering deals</h4>
                 
-                <form class="form-horizontal" id='input' method='post' action='graph'>	
+                <form class="form-horizontal" id='input' method='post' action='result'>	
 	  			    <div class="form-group">
 	  			        <label class="control-label col-sm-3" for="make">Make * :</label>
 	  			        <div class="control-label col-sm-9">
@@ -482,7 +449,7 @@
 
 
 <!-- Carousel panel -->
-<div id="algorithm" class="container-fluid text-center">
+<div id="algorithm" class="container-fluid text-center bg-grey">
 <h2>What our fellows say</h2>
   <div id="myCarousel" class="carousel slide text-center" data-ride="carousel">
     <!-- Indicators -->
@@ -525,7 +492,7 @@
 
 
 <!-- Container (Contact Section) -->
-<div id="contact" class="container-fluid bg-grey">
+<div id="contact" class="container-fluid">
   <h2 class="text-center">CONTACT</h2>
   <div class="row">
     <div class="col-sm-5">

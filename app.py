@@ -39,7 +39,7 @@ app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 
 app.vars={}
-app.vars['gmail']="Bumblebee#$Megatron53379801<tak>"
+app.vars['gmail'] = "Bumblebee#$Megatron53379801<tak>"
 
 #========================================================================================
 @app.route('/')
@@ -253,6 +253,7 @@ def emailadmin():
     msg.attach(part1)
     #msg.attach(part2)
     server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
     server.starttls()
     server.login("myautobotapp@gmail.com", app.vars['gmail'])
 
@@ -294,6 +295,7 @@ def emailsent():
     #msg.attach(part1)
     msg.attach(part2)
     server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
     server.starttls()
     server.login("myautobotapp@gmail.com", app.vars['gmail'])
 

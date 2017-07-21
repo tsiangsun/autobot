@@ -39,6 +39,7 @@ app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 
 app.vars={}
+app.vars['gmail']="Bumblebee#$Megatron53379801<tak>"
 
 #========================================================================================
 @app.route('/')
@@ -186,11 +187,11 @@ def showresult():
 
     #--- loading Machine learned data for this model ---
     #myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
-    df2 = pd.read_csv('CAR_PRICE_DATA_%s.csv' % model)
+    app.df2 = pd.read_csv('CAR_PRICE_DATA_%s.csv' % model)
     overpricefactor = 1.1
     lower = 0.8
     upper = 1.2
-    dfr = df2[df2.PRICE < df2.PRICEPRED*overpricefactor]
+    dfr = app.df2[ app.df2.PRICE < app.df2.PRICEPRED*overpricefactor]
     df3 = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
     dfi = df3.sort_values(by=['YEAR','POSTTIME'],ascending=[False, False])[
       ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]
@@ -209,11 +210,11 @@ def showresult():
 
     dfresult = dfresult[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL']]  #'IMAGE',
     #dfresult = app.df.head()[['POSTTIME','CITY','STATE','PRICE','YEAR','MILES','TITLE','URL']]
-    df_html = dfresult.to_html(index=False)#line_width=60, col_space=70
+    app.df_html = dfresult.to_html(index=False)#line_width=60, col_space=70
     #from IPython.display import HTML
     #df_html = HTML(df_html)
 
-    return render_template('result.html', script=script, div=div, datatable=df_html, make=make.title(), model=model.title())
+    return render_template('result.html', script=script, div=div, datatable=app.df_html, make=make.title(), model=model.title())
 
 
 
@@ -225,24 +226,82 @@ def algorithm():
 
 @app.route('/contact', methods=['POST'])
 def emailadmin():
-    #to be constructed
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
 
-    
-    app.vars['email'] = request.form['email']
-    app.vars['name'] = request.form['name']
-    app.vars['comments'] = request.form['comments']
+    email = request.form['email']
+    name = request.form['name']
+    comments = request.form['comments']
 
-    return render_template('contact.html', name=app.vars['name'])
+    sender = 'myautobotapp@gmail.com'
+    receivers = [ 'myautobotapp@gmail.com', email ] #'xiangscode@gmail.com'
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Contact Autobot from %s' % name
+    msg['From'] = sender
+    msg['To'] = ','.join(receivers)
+
+    # Create the body of the message (a plain-text and an HTML version).
+    html = "something"
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    part1 = MIMEText(comments, 'plain')
+    #part2 = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    msg.attach(part1)
+    #msg.attach(part2)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("myautobotapp@gmail.com", app.vars['gmail'])
+
+    server.sendmail(sender, receivers, msg.as_string())
+    server.quit()
+
+    return render_template('contact.html', name=name)
 
 
 
 #========================================================================================
 @app.route('/alert', methods=['POST'])
 def emailsent():
-    #to be constructed
-    app.vars['email'] = request.form['email']
-    app.vars['name'] = request.form['name']
-    return render_template('alert.html', name=app.vars['name'], email=app.vars['email'])
+
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    email = request.form['email']
+    name = request.form['name']
+    #comments = request.form['comments']
+
+    sender = 'myautobotapp@gmail.com'
+    receivers = [ 'myautobotapp@gmail.com', email ] #'xiangscode@gmail.com'
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Autobot: Car Deals for %s' % name
+    msg['From'] = sender
+    msg['To'] = ','.join(receivers)
+
+    # Create the body of the message (a plain-text and an HTML version).
+    html = "something"
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    #part1 = MIMEText(comments, 'plain')
+    part2 = MIMEText(app.df_html, 'html')
+
+    # Attach parts into message container.
+    #msg.attach(part1)
+    msg.attach(part2)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("myautobotapp@gmail.com", app.vars['gmail'])
+
+    server.sendmail(sender, receivers, msg.as_string())
+    server.quit()
+
+
+    return render_template('alert.html', name=name, email=email)
 
 
 #========================================================================================

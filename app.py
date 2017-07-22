@@ -508,6 +508,14 @@ def plot_price_distr():
     p.scatter(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.6, line_color=None, source=source) 
     p.xaxis[0].axis_label = 'Year'
     p.yaxis[0].axis_label = 'Mileage (k)'
+    p.title.text_font_style = "bold"
+    p.xaxis.axis_label_text_font_style = "bold"
+    p.yaxis.axis_label_text_font_style = "bold"
+    p.title.text_font_size = '12pt'
+    p.xaxis.axis_label_text_font_size = "16pt"
+    p.yaxis.axis_label_text_font_size = "16pt"
+    p.xaxis.major_label_text_font_size = '12pt'
+    p.yaxis.major_label_text_font_size = '12pt'
 
     return p
 
@@ -573,7 +581,7 @@ def plot_result_price_distr(df):
     myrad   = radii.tolist()
     
     source = ColumnDataSource(data=dict( x=mymile, y=myprice, mile=mymile, year=myyear, desc=myprice,
-                pred = mypredprice, imgs = myimg, rad = myrad, c = mycolor ))
+                pred = mypredprice, imgs = myimg, rad = myrad, c = mycolor, url=myurls ))
 
     hover = HoverTool(
             tooltips="""
@@ -599,7 +607,7 @@ def plot_result_price_distr(df):
 
     p = figure(plot_width=600, plot_height=600, tools=[hover,PanTool(),ResetTool(), SaveTool(), 
         TapTool(),WheelZoomTool(), BoxSelectTool(), BoxZoomTool(), LassoSelectTool(),CrosshairTool()],
-        title="Size ~ Year, Blue: post price < predict, Red: opposite.")
+        title="Size ~ Year, Blue: post price < predict, Red: otherwise")
     url = "@url"
     taptool = p.select(type=TapTool)
     taptool.callback = OpenURL(url=url)

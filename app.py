@@ -542,6 +542,7 @@ def plot_result_price_distr(df):
     df1 = df #df[df.MODEL == app.vars['model']] 
     rows, cols = df1.shape
     price = df1.ix[:,'PRICE'].values
+    predprice = df1.ix[:,'PRICEPRED'].values
     milek = df1.ix[:,'MILES'].values/1000.0 # k miles
     year  = df1.ix[:,'YEAR'].values
     imglinks = df1.ix[:,'IMGLINK'].values
@@ -550,19 +551,29 @@ def plot_result_price_distr(df):
     myyear  = year.tolist()
     mymile  = milek.tolist()
     myprice = price.tolist()
+    mypredprice = predprice.tolist()
     myimg   = imglinks.tolist()
     myurls = urls.tolist()
 
-    #radii = map(math.sqrt, [a/160000.0 for a in price]) #price proportion to area
-    #myrad = radii
-    #mycolor = ["#%02x%02x%02x" % (int(r), 0, 200) for r in price/ 70.0]
-
-    radii = price / 40000.0  #price proportion to radius
+    pdiff = predprice - price 
+    mycolor = []
+    pdmin = pdiff.min()
+    pdmax = pdiff.max()
+    for r in pdiff:
+        if r > 0:
+            x = (pdmax - r) / (abs(pdmax) +0.1) * 180
+            mycolor.append("#%02x%02x%02x" % (0, int(x), 255)) #blue, deal!!
+        else:
+            x = (r - pdmin) / ( abs(pdmin) +0.1) * 180
+            mycolor.append("#%02x%02x%02x" % (255, 0, int(x))) #red
+    
+    yearmax = year.max()
+    yearmin = year.min()
+    radii = (year - yearmin) / (yearmax - yearmin + 1.0) * 4 + 2
     myrad   = radii.tolist()
-    mycolor = [ "#%02x%02x%02x" % (int(r), 0, 200) for r in radii*550 ]
-    ####(int(r), int(g), 150) for r, g in zip(50+5*(x-1995), 30+2*y)
-    source = ColumnDataSource(data=dict( x=myyear, y=mymile, desc=myprice,
-                imgs = myimg, rad = myrad, c = mycolor, url=myurls ))
+    
+    source = ColumnDataSource(data=dict( x=mymile, y=myprice, mile=mymile, year=myyear, desc=myprice,
+                pred = mypredprice, imgs = myimg, rad = myrad, c = mycolor ))
 
     hover = HoverTool(
             tooltips="""
@@ -576,11 +587,11 @@ def plot_result_price_distr(df):
                 </div>
                 <div>
                     <span style="font-size: 17px; font-weight: bold;">$@desc</span>
-                    <span style="font-size: 15px; color: #966;">[$index]</span>
+                    <span style="font-size: 15px; color: #966;">[$@pred]</span>
                 </div>
                 <div>
                     <span style="font-size: 15px;">(year,miles)=</span>
-                    <span style="font-size: 15px; color: #696;">(@x{int}, @y{1.1}k)</span>
+                    <span style="font-size: 15px; color: #696;">(@year{int}, @mile{1.1}k)</span>
                 </div>
             </div>
             """
@@ -588,14 +599,22 @@ def plot_result_price_distr(df):
 
     p = figure(plot_width=600, plot_height=600, tools=[hover,PanTool(),ResetTool(), SaveTool(), 
         TapTool(),WheelZoomTool(), BoxSelectTool(), BoxZoomTool(), LassoSelectTool(),CrosshairTool()],
-        title="Price is proportional to symbol size")
+        title="Size ~ Year, Blue: post price < predict, Red: opposite.")
     url = "@url"
     taptool = p.select(type=TapTool)
     taptool.callback = OpenURL(url=url)
 
-    p.scatter(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.6, line_color=None, source=source) 
-    p.xaxis[0].axis_label = 'Year'
-    p.yaxis[0].axis_label = 'Mileage (k)'
+    p.scatter(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.7, line_color=None, source=source) 
+    p.xaxis[0].axis_label = 'Mileage (k)'
+    p.yaxis[0].axis_label = 'Price ($)'
+    p.title.text_font_style = "bold"
+    p.xaxis.axis_label_text_font_style = "bold"
+    p.yaxis.axis_label_text_font_style = "bold"
+    p.title.text_font_size = '12pt'
+    p.xaxis.axis_label_text_font_size = "16pt"
+    p.yaxis.axis_label_text_font_size = "16pt"
+    p.xaxis.major_label_text_font_size = '12pt'
+    p.yaxis.major_label_text_font_size = '12pt'
 
     return p
 

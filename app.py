@@ -116,8 +116,14 @@ def carvalue():
     X_mycar.append(dic)
 
 
+    if not os.path.isfile('CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
+        return redirect('/error')
+
     myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
     app.df = pd.read_csv(myfile) 
+
+    app.df = app.df.drop(app.df[(app.df.PRICE > 50000)].index)
+    app.df = app.df.drop(app.df[(app.df.PRICE > 25000) & (app.df.YEAR < 2013)].index)
 
 
     if not os.path.isfile('ensemble_pipeline_%s_%s.dill' %(make, model)) :
@@ -158,8 +164,8 @@ def graph():
     '''
     
     #--------------------------------------------
-    myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
-    app.df = pd.read_csv(myfile) #, low_memory=False
+    #myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
+    #app.df = pd.read_csv(myfile) #, low_memory=False
 
     #p1 = figure(title='Post traffic %s' % city, x_axis_label='Posts', y_axis_label='Weekday', tools= TOOLS)
     #p1.vbar(x=range(7), top=count, bottom = 0,  width=0.5, color="purple", legend='# of Posts')
@@ -202,6 +208,9 @@ def showresult():
 
     #--- loading Machine learned data for this model ---
     #myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
+    if not os.path.isfile('CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
+        return redirect('/error')
+        
     app.df2 = pd.read_csv('CAR_PRICE_DATA_%s_%s.csv' % (make, model))
     overpricefactor = 1.1
     lower = 0.8

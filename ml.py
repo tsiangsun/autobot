@@ -17,6 +17,7 @@ from sklearn import datasets, linear_model, utils, preprocessing
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
 from sklearn import neighbors
 from sklearn import ensemble
+from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.feature_extraction import DictVectorizer
 
@@ -198,60 +199,99 @@ class DictFlattener(base.BaseEstimator, base.TransformerMixin):
 
 #=====================================================================
 
-
 ensemble_pipeline = Pipeline([ 
         ('dictflat', DictFlattener() ),
         ('vector', DictVectorizer(sparse=False)),
         ('ensemble', EnsembleTransformer(
                 linear_model.LinearRegression(),
-                (neighbors.KNeighborsRegressor(n_neighbors=10),
-                 ensemble.RandomForestRegressor(min_samples_leaf=5)))),
-        ('blend', linear_model.LinearRegression())
+                (neighbors.KNeighborsRegressor(n_neighbors=20),
+                 ensemble.RandomForestRegressor(min_samples_leaf=50,n_estimators=100)))),
+        ('ridgereg', Ridge(alpha=540))
        ])
 
 
+myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
+df = pd.read_csv(myfile)
 
-myfile='CAR_PRICE_DATA_1.csv'
-df = pd.read_csv(myfile) #, low_memory=False
+df = df.drop_duplicates('IMGLINK')
+df = df.drop(df[df.PRICE < 500].index)
+df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
+df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
+df = df.drop(df[(df.PRICE > 25000) & (df.YEAR < 2012)].index)
+df = df.drop(df[(df.MILES < 20000) & (df.YEAR < 2012)].index)
+df = df.drop(df[(df.MILES > 200000) & (df.YEAR > 2008)].index)
+df = df.drop(df[(df.MILES > 400000)].index)
+#df = df.drop(df[df.YEAR < 1999].index)
+
+df1 = df
+
+
+myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA.csv'
+df = pd.read_csv(myfile)
+
+df = df.drop_duplicates('IMGLINK')
+df = df.drop(df[df.PRICE < 500].index)
+df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
+df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
+df = df.drop(df[(df.PRICE > 25000) & (df.YEAR < 2012)].index)
+df = df.drop(df[(df.MILES < 20000) & (df.YEAR < 2012)].index)
+df = df.drop(df[(df.MILES > 200000) & (df.YEAR > 2008)].index)
+df = df.drop(df[(df.MILES > 400000)].index)
+#df = df.drop(df[df.YEAR < 1999].index)
+
+#---------------------------------------------------------------
 
 make = 'toyota'
-model = 'camry'
+model = 'rav4'
 
-df1 = df[df.MODEL == model]
+#---------------------------------------------------------------
 
-X_dict = df_Dict_Transform(df1)
-y = df1['PRICE'].values
+dfa = pd.concat([ df1[df1.MODEL == model] , df[df.MODEL == model] ], ignore_index=True)
+dfa = dfa.drop_duplicates('IMGLINK')
+dfa = dfa.drop(dfa[dfa.PRICE < 100].index)
+dfa = dfa.drop(dfa[(dfa.PRICE < 1000) & (dfa.YEAR > 2012)].index)
+dfa = dfa.reset_index(drop=True)
+#dfa = df[df.MODEL == model]  if only one csv file
 
-ensemble_pipeline.fit(X_dict, y)
+X = df_Dict_Transform(dfa)
+y = dfa['PRICE'].values
 
-y_pred = ensemble_pipeline.predict(X_dict)
+ensemble_pipeline.fit(X, y)
+y_pred = ensemble_pipeline.predict(X)
+score = ensemble_pipeline.score(X, y)
 
+print '---------------------------------------'
+print '     <', make.title(), model.title(),'>'
+print '     Score =', score
+print '---------------------------------------'
+
+dfy = pd.DataFrame({'PRICEPRED': y_pred})
+dfp = dfa.join(dfy, lsuffix='_dfa', rsuffix='_dfy')
+dfp.to_csv('/Users/xiangs/github/cardeal/CAR_PRICE_DATA_%s_%s.csv' % (make, model), index = False)
 
 import dill
-dill.dump(ensemble_pipeline, open('ensemble_pipeline_%s_%s.dill' %(make, model), 'w'))
+dill.dump(ensemble_pipeline, open('/Users/xiangs/github/cardeal/ensemble_pipeline_%s_%s.dill' % (make, model), 'w'))
 
-
+# -------------------------------------------------
 from mpl_toolkits.mplot3d import Axes3D
 
-price = df1.ix[:,'PRICE'].values
-mile = df1.ix[:,'MILES'].values
-year = df1.ix[:,'YEAR'].values
+price = dfa.ix[:,'PRICE'].values
+mile = dfa.ix[:,'MILES'].values
+year = dfa.ix[:,'YEAR'].values
 yr = year.tolist()
 mi = map(int, mile.tolist())
 pr = price.tolist()
-
-fig = plt.figure(figsize=(5, 5), dpi=100)
+fig = plt.figure(figsize=(10, 7), dpi=100)
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(yr, mi, pr, c = 'b', marker='o',alpha=0.3)
 ax.scatter(yr, mi, y_pred, c = 'r', marker='+',alpha=0.5)
-
-ax.set_title('Toyota Camry')
-ax.set_xlabel('Model Year')
+ax.set_title('%s %s'% (make, model))
+ax.set_xlabel('Year')
 ax.set_ylabel('Miles')
 ax.set_zlabel('Price ($)')
 ax.set_xlim3d(1995, 2018)
 ax.set_ylim3d(0, 400000)
-ax.set_zlim3d(0, 28000)
+ax.set_zlim3d(0, 30000)
 plt.show()
 
 

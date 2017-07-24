@@ -22,9 +22,12 @@ from sklearn import datasets, linear_model, utils, preprocessing
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
 from sklearn import neighbors
 from sklearn import ensemble
+from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.feature_extraction import DictVectorizer
 from datetime import datetime
+from datetime import date
+from datetime import timedelta
 import sys
 import logging
 import dill
@@ -76,6 +79,7 @@ def carvalue():
     if make =='' or model=='' or request.form['year']=='' or request.form['miles']=='':
         return redirect('/error')
     
+    '''
     ensemble_pipeline = Pipeline([ 
         ('dictflat', DictFlattener() ),
         ('vector', DictVectorizer(sparse=False)),
@@ -84,6 +88,17 @@ def carvalue():
                 (neighbors.KNeighborsRegressor(n_neighbors=10),
                  ensemble.RandomForestRegressor(min_samples_leaf=5)))),
         ('blend', linear_model.LinearRegression())
+       ])
+    '''
+
+    ensemble_pipeline = Pipeline([ 
+        ('dictflat', DictFlattener() ),
+        ('vector', DictVectorizer(sparse=False)),
+        ('ensemble', EnsembleTransformer(
+                linear_model.LinearRegression(),
+                (neighbors.KNeighborsRegressor(n_neighbors=20),
+                 ensemble.RandomForestRegressor(min_samples_leaf=50,n_estimators=100)))),
+        ('ridgereg', Ridge(alpha=540))
        ])
 
 
@@ -101,7 +116,7 @@ def carvalue():
     X_mycar.append(dic)
 
 
-    myfile='CAR_PRICE_DATA_1.csv'
+    myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
     app.df = pd.read_csv(myfile) 
 
 
@@ -143,7 +158,7 @@ def graph():
     '''
     
     #--------------------------------------------
-    myfile='CAR_PRICE_DATA_1.csv'
+    myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
     app.df = pd.read_csv(myfile) #, low_memory=False
 
     #p1 = figure(title='Post traffic %s' % city, x_axis_label='Posts', y_axis_label='Weekday', tools= TOOLS)
@@ -187,17 +202,24 @@ def showresult():
 
     #--- loading Machine learned data for this model ---
     #myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
-    app.df2 = pd.read_csv('CAR_PRICE_DATA_%s.csv' % model)
+    app.df2 = pd.read_csv('CAR_PRICE_DATA_%s_%s.csv' % (make, model))
     overpricefactor = 1.1
     lower = 0.8
     upper = 1.2
+
     dfr = app.df2[ app.df2.PRICE < app.df2.PRICEPRED*overpricefactor]
-    df3 = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
-    dfi = df3.sort_values(by=['YEAR','POSTTIME'],ascending=[False, False])[
+    dfr = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
+    dfr['dt'] = pd.to_datetime(dfr['POSTTIME'])
+
+    today = date.today()
+    filter_date = today - timedelta(days=30)
+    dfr = dfr[ dfr['dt'] >  filter_date ]  
+
+    dfr = dfr.sort_values(by=['POSTTIME','YEAR'],ascending=[False, False])[
       ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]
 
     #dfi['IMAGE'] = dfi['IMGLINK'].apply(lambda x: '<img src="{}" />'.format(x) if x else '') #
-    dfresult = dfi[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
+    dfresult = dfr[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
     dfresult['PRICEPRED'] = dfresult.PRICEPRED.astype(int)
 
     #p = plot_price_distr()

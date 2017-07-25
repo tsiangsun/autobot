@@ -135,7 +135,11 @@ def carvalue():
     
     y_mycar = ensemble_pipeline.predict(X_mycar)
     predprice = y_mycar[0]
-    predprice = int(round(predprice * 1.2, -1))
+    if year < 2015:
+        predprice *= 1.2
+    else:
+        predprice *= 1.1
+    predprice = int(round(predprice, -1))
 
     p = plot_price_distr()
     script, div = components(p)
@@ -233,7 +237,7 @@ def showresult():
     dfresult = dfr[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
     dfresult['PRICEPRED'] = dfresult.PRICEPRED.astype(int)
 
-    if dfresult.shape[0] < 3 :
+    if dfresult.shape[0] < 2 :
         return redirect('/error')
 
     #p = plot_price_distr()

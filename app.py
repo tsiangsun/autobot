@@ -70,6 +70,9 @@ def carvalue():
     year = app.vars['year']
     miles = app.vars['miles']
 
+    if miles < 1000 or miles > 300000 or year < 1995 or year > 2017:
+        return redirect('/error')
+
     state_dict = {'sfbay': 'CA', 'losangeles': 'CA', 'newyork': 'NY', 'seattle': 'WA', 'orangecounty': 'CA', 'sandiego':'CA',
               'chicago': 'IL', 'sacramento':'CA', 'portland': 'OR', 'phoenix': 'AZ', 'washingtondc': 'DC', 'atlanta': 'GA',
               'miami': 'FL', 'boston': 'MA', 'dallas': 'TX', 'inlandempire': 'CA', 'denver': 'CO', 'minneapolis': 'MN', 
@@ -79,7 +82,7 @@ def carvalue():
     if make =='' or model=='' or request.form['year']=='' or request.form['miles']=='':
         return redirect('/error')
     
-    '''
+    
     ensemble_pipeline = Pipeline([ 
         ('dictflat', DictFlattener() ),
         ('vector', DictVectorizer(sparse=False)),
@@ -90,7 +93,6 @@ def carvalue():
         ('blend', linear_model.LinearRegression())
        ])
     '''
-
     ensemble_pipeline = Pipeline([ 
         ('dictflat', DictFlattener() ),
         ('vector', DictVectorizer(sparse=False)),
@@ -100,7 +102,7 @@ def carvalue():
                  ensemble.RandomForestRegressor(min_samples_leaf=50,n_estimators=100)))),
         ('ridgereg', Ridge(alpha=540))
        ])
-
+    '''
 
     X_mycar = []
     state = state_dict[city]
@@ -133,7 +135,7 @@ def carvalue():
     
     y_mycar = ensemble_pipeline.predict(X_mycar)
     predprice = y_mycar[0]
-    predprice = int(round(predprice, -1))
+    predprice = int(round(predprice * 1.2, -1))
 
     p = plot_price_distr()
     script, div = components(p)
@@ -151,8 +153,7 @@ def graph():
     model = app.vars['model']
     city = app.vars['city']
     budget = app.vars['budget']
-    if budget < 100 or budget > 40000:
-        return redirect('/error')
+    
     '''
     if request.form.get('year_pri'):
         app.vars['year_pri'] = 1
@@ -160,12 +161,10 @@ def graph():
         app.vars['miles_pri'] = 1
     elif request.form.get('budget_pri'):
         app.vars['budget_pri'] = 1
-    
     '''
-    
     #--------------------------------------------
-    #myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
-    #app.df = pd.read_csv(myfile) #, low_memory=False
+    myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
+    app.df = pd.read_csv(myfile) #, low_memory=False
 
     #p1 = figure(title='Post traffic %s' % city, x_axis_label='Posts', y_axis_label='Weekday', tools= TOOLS)
     #p1.vbar(x=range(7), top=count, bottom = 0,  width=0.5, color="purple", legend='# of Posts')
@@ -180,7 +179,7 @@ def graph():
     #grid = gridplot([p3,p4], ncols=2, plot_width=400, plot_height=400)
     script1, div1 = components(p)
 
-    violin = violin_mpl(model)
+    violin = violin_mpl()
     #pd.set_option('display.max_colwidth',54)
     #pd.set_option('display.max_seq_items',200)
     #dfresult = app.df.head()[['POSTTIME','CITY','STATE','PRICE','YEAR','MILES','TITLE','URL']]
@@ -206,6 +205,9 @@ def showresult():
     budget = app.vars['budget'] 
     city = app.vars['city']
 
+    if budget < 100 or budget > 40000:
+        return redirect('/error')
+
     #--- loading Machine learned data for this model ---
     #myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
     if not os.path.isfile('CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
@@ -213,7 +215,7 @@ def showresult():
         
     app.df2 = pd.read_csv('CAR_PRICE_DATA_%s_%s.csv' % (make, model))
     overpricefactor = 1.1
-    lower = 0.8
+    lower = 0.7
     upper = 1.2
 
     dfr = app.df2[ app.df2.PRICE < app.df2.PRICEPRED*overpricefactor]
@@ -221,7 +223,7 @@ def showresult():
     dfr['dt'] = pd.to_datetime(dfr['POSTTIME'])
 
     today = date.today()
-    filter_date = today - timedelta(days=30)
+    filter_date = today - timedelta(days=20)
     dfr = dfr[ dfr['dt'] >  filter_date ]  
 
     dfr = dfr.sort_values(by=['POSTTIME','YEAR'],ascending=[False, False])[
@@ -230,6 +232,9 @@ def showresult():
     #dfi['IMAGE'] = dfi['IMGLINK'].apply(lambda x: '<img src="{}" />'.format(x) if x else '') #
     dfresult = dfr[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
     dfresult['PRICEPRED'] = dfresult.PRICEPRED.astype(int)
+
+    if dfresult.shape[0] < 3 :
+        return redirect('/error')
 
     #p = plot_price_distr()
     p = plot_result_price_distr(dfresult)
@@ -451,14 +456,12 @@ def plot_traffic():
 
 
 #========================================================================================
-def violin_mpl(model):
-
-    df2 = pd.read_csv('CAR_PRICE_DATA_%s.csv' % model)
+def violin_mpl():
 
     sns.set_style('darkgrid')
     fig, ax = plt.subplots()
     fig.set_size_inches(10, 5)
-    sns.violinplot(x='CITY',y='PRICE', data=df2, ax=ax,  bw=0.2, width=0.98, linewidth=1)   
+    sns.violinplot(x='CITY',y='PRICE', data=app.df, ax=ax,  bw=0.2, width=0.98, linewidth=1)   
     plt.xticks(rotation=70)
     plt.tight_layout()
 
@@ -501,9 +504,11 @@ def plot_price_distr():
     #mycolor = ["#%02x%02x%02x" % (int(r), 0, 200) for r in price/ 70.0]
 
     radii = price / 40000.0  #price proportion to radius
-    myrad   = radii.tolist()
     mycolor = [ "#%02x%02x%02x" % (int(r), 0, 200) for r in radii*550 ]
     ####(int(r), int(g), 150) for r, g in zip(50+5*(x-1995), 30+2*y)
+    radii +=0.04
+    myrad   = radii.tolist()
+    
     source = ColumnDataSource(data=dict( x=myyear, y=mymile, desc=myprice,
                 imgs = myimg, rad = myrad, c = mycolor, url=myurls))
 
@@ -536,7 +541,7 @@ def plot_price_distr():
     taptool = p.select(type=TapTool)
     taptool.callback = OpenURL(url=url)
 
-    p.scatter(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.6, line_color=None, source=source) 
+    p.circle(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.6, line_color=None, source=source) 
     p.xaxis[0].axis_label = 'Year'
     p.yaxis[0].axis_label = 'Mileage (k)'
     p.title.text_font_style = "bold"
@@ -643,7 +648,7 @@ def plot_result_price_distr(df):
     taptool = p.select(type=TapTool)
     taptool.callback = OpenURL(url=url)
 
-    p.scatter(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.7, line_color=None, source=source) 
+    p.circle(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.7, line_color=None, source=source) 
     p.xaxis[0].axis_label = 'Mileage (k)'
     p.yaxis[0].axis_label = 'Price ($)'
     p.title.text_font_style = "bold"
@@ -845,7 +850,8 @@ def simple_mpl():
 #========================================================================================
 @app.route('/error')
 def error():
-    return render_template('error.html', model=app.vars['model'])
+    return render_template('error.html', make=app.vars['make'].title(),
+        model=app.vars['model'].title())
 
 #========================================================================================
 if __name__ == '__main__':

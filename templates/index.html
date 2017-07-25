@@ -18,14 +18,13 @@
           color: #353535;
       }
       h2 {
-          font-size: 24px;
-          text-transform: uppercase;
+          font-size: 28px;
           color: #303030;
           font-weight: 600;
           margin-bottom: 30px;
       }
       h4 {
-          font-size: 19px;
+          font-size: 22px;
           line-height: 1.375em;
           color: #303030;
           font-weight: 400;
@@ -205,11 +204,14 @@
     </div>
     <div class="col-sm-8">
       <h2>ABOUT</h2>
-        <h3> <b>Autobot</b> app can help you with the following problems:</h3>
-        <h4> Do you find it hard to tell a used car's value?<br>
-         Do you find it impossible to memorize or compare cars' details? <br>
-         Do you find car deals are often very short-lived? 
-         </h4>
+        <h3> <b>Autobot</b> app can help you with the following issues:</h3>
+        <h3>
+         <ul>
+              <li>Hard to tell a used car's value</li>
+              <li>Impossible to memorize or compare cars' details</li>
+              <li>Car deals are often very short-lived </li>
+         </ul>
+        </h3>
   <!--  <img src="{{url_for('static', filename='titleimage-ml.png')}}" style="width:450px;height:158px;" /> -->
   <!--  <form class="form-inline">
         <div class="input-group">
@@ -244,28 +246,28 @@
 <!-- Container (SERVICES Section) -->
 <div id="services" class="container-fluid text-center bg-grey">
   <h2>SERVICES</h2>
-  <h4>What we offer</h4>
+  <h3>What we offer</h3>
   <br>
   <div class="row">
     <div class="col-sm-4">
       <span class="glyphicon glyphicon-education logo-small"></span>
-      <h4>Machine Learning</h4>
-      <p>Predict price and filter out deals<br>
+      <h3>Machine Learning</h3>
+      <h4>Predict price and select out deals<br>
       by learning data scraped from Craigslist 
         <form class="form-horizontal" id='input' method='get' action='method'>	
-            <button class="btn" type="submit">See more details</button>
+            <button class="btn btn-lg" type="submit">See more details</button>
         </form>
-      </p>
+      </h4>
     </div>
     <div class="col-sm-4">
       <span class="glyphicon glyphicon-stats logo-small"></span>
-      <h4>Interactive Data Visualization</h4>
-      <p>Visual summary, back-to-back comparisons</p>
+      <h3>Interactive Data Visualization</h3>
+      <h4>Visual summary, back-to-back comparisons</h4>
     </div>
     <div class="col-sm-4">
       <span class="glyphicon glyphicon-bell logo-small"></span>
-      <h4>Automatic Email Alert</h4>
-      <p>Act ASAP when a deal shows up</p>
+      <h3>Automatic Email Alert</h3>
+      <h4>Act ASAP when a deal shows up</h4>
     </div>
   </div>
 </div>
@@ -275,7 +277,7 @@
 <div id="products" class="container-fluid">
   <div class="text-center">
     <h2>PRODUCTS</h2>
-    <h4>Choose an <b>Autobot</b> that works for you:</h4>
+    <h3>Choose an <b>Autobot</b> that works for you:</h3>
   </div>
   <div class="row">
     <div class="col-sm-5 col-sm-offset-1 col-xs-12">
@@ -497,8 +499,9 @@
   <h2 class="text-center">CONTACT</h2>
   <div class="row">
     <div class="col-sm-5">
-      <p>Contact me and I'll get back to you within 24 hours.</p>
-      <p><span class="glyphicon glyphicon-map-marker"></span> San Francisco, CA</p>
+      <p>Contact me and I'll get back to you within 24 hours.</p>    
+      <p><span class="glyphicon glyphicon-user"></span> Xiang Sun</p>
+ <!-- <p><span class="glyphicon glyphicon-map-marker"></span> San Francisco, CA</p>  -->
       <p><span class="glyphicon glyphicon-phone"></span> (+1) 401.338.7563</p>
       <p><span class="glyphicon glyphicon-envelope"></span> xiang.sun@mg.thedataincubator.com</p>
     </div>

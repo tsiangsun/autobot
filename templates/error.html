@@ -184,14 +184,14 @@
     </nav>
   
     <div id="thankyou" class="container-fluid text-center">
-        <h2>Oooooooooooops!</h2>
+        <h2>Sorry!</h2>
         <div class="row text-center">
-            <div class="col-sm-8 col-sm-offset-2 col-xs-12">
-                <h4>We can't seem to find the page you're looking for. </h4>
-                <p>
-                It could be: some required input is missing <br>
-                or <br> requested info {{ model }} was not found in our database.
-                </p>
+            <div class="col-sm-6 col-sm-offset-3 col-xs-12">
+                <h3>I can't find the information you requested. </h3>
+                <h4>
+                Required input is missing or out of range,
+                or no satisfied {{ make | safe }} {{ model | safe }} was found in our database.
+                </h4>
             </div>
         </div>
     </div>

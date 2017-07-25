@@ -198,7 +198,7 @@ class DictFlattener(base.BaseEstimator, base.TransformerMixin):
 
 
 #=====================================================================
-
+'''
 ensemble_pipeline = Pipeline([ 
         ('dictflat', DictFlattener() ),
         ('vector', DictVectorizer(sparse=False)),
@@ -208,6 +208,17 @@ ensemble_pipeline = Pipeline([
                  ensemble.RandomForestRegressor(min_samples_leaf=50,n_estimators=100)))),
         ('ridgereg', Ridge(alpha=540))
        ])
+'''
+
+ensemble_pipeline = Pipeline([ 
+        ('dictflat', DictFlattener() ),
+        ('vector', DictVectorizer(sparse=False)),
+        ('ensemble', EnsembleTransformer(
+                linear_model.LinearRegression(),
+                (neighbors.KNeighborsRegressor(n_neighbors=10),
+                 ensemble.RandomForestRegressor(min_samples_leaf=5)))),
+        ('blend', linear_model.LinearRegression())
+       ])
 
 
 myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
@@ -215,6 +226,7 @@ df = pd.read_csv(myfile)
 
 df = df.drop_duplicates('IMGLINK')
 df = df.drop(df[df.PRICE < 500].index)
+df = df.drop(df[df.PRICE > 35000].index)
 df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
 df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
 df = df.drop(df[(df.PRICE > 25000) & (df.YEAR < 2012)].index)
@@ -231,6 +243,7 @@ df = pd.read_csv(myfile)
 
 df = df.drop_duplicates('IMGLINK')
 df = df.drop(df[df.PRICE < 500].index)
+df = df.drop(df[df.PRICE > 35000].index)
 df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
 df = df.drop(df[(df.PRICE < 2000) & (df.YEAR > 2008)].index)
 df = df.drop(df[(df.PRICE > 25000) & (df.YEAR < 2012)].index)
@@ -241,8 +254,8 @@ df = df.drop(df[(df.MILES > 400000)].index)
 
 #---------------------------------------------------------------
 
-make = 'honda'
-model = 'civic'
+make = 'ford'
+model = 'taurus'
 
 #---------------------------------------------------------------
 

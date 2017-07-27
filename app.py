@@ -56,14 +56,18 @@ def index():
  
 
 #========================================================================================   
-@app.route('/value', methods=['POST'])
+@app.route('/value', methods=['GET', 'POST'])
 def carvalue():
     import numpy as np
-    app.vars['make'] = request.form['make'].lower()
-    app.vars['model'] = request.form['model'].lower()
-    app.vars['year'] = int(request.form['year'])
-    app.vars['miles'] = int(request.form['miles'])
-    app.vars['city'] = request.form['city']
+    if request.method == 'POST':
+        if request.form['make'] =='' or request.form['model']=='' or request.form['year']=='' or request.form['miles']=='':
+            return redirect('/error')
+        app.vars['make'] = request.form['make'].strip().replace(' ', '').replace('-', '').lower()
+        app.vars['model'] = request.form['model'].strip().replace(' ', '').replace('-', '').lower()
+        app.vars['year'] = int(request.form['year'])
+        app.vars['miles'] = int(request.form['miles'])
+        app.vars['city'] = request.form['city']
+
     make = app.vars['make']
     model = app.vars['model']
     city = app.vars['city']
@@ -79,9 +83,6 @@ def carvalue():
               'austin': 'TX', 'houston': 'TX', 'tampa': 'FL', 'orlando': 'FL', 'newjersey': 'NJ', 'philadelphia': 'PA', 
               'lasvegas': 'NV', 'detroit': 'MI', 'stlouis': 'MO'}
 
-    if make =='' or model=='' or request.form['year']=='' or request.form['miles']=='':
-        return redirect('/error')
-    
     
     ensemble_pipeline = Pipeline([ 
         ('dictflat', DictFlattener() ),
@@ -195,21 +196,22 @@ def graph():
 
 
 #========================================================================================   
-@app.route('/result', methods=['POST'])
+@app.route('/result', methods=['GET', 'POST'])
 def showresult():
-    app.vars['make'] = request.form['make'].lower()
-    app.vars['model'] = request.form['model'].lower()
-    app.vars['budget'] = int(request.form['budget'])
-    app.vars['city'] = request.form['city']
-    if app.vars['make'] =='' or app.vars['model']=='' or request.form['budget']=='':
-        return redirect('/error')
-
+    if request.method == 'POST':
+        if request.form['make'] =='' or request.form['model']=='' or request.form['budget']=='':
+            return redirect('/error')
+        app.vars['make'] = request.form['make'].strip().replace(' ', '').replace('-', '').lower()
+        app.vars['model'] = request.form['model'].strip().replace(' ', '').replace('-', '').lower()
+        app.vars['budget'] = int(request.form['budget'])
+        app.vars['city'] = request.form['city']
+        
     make = app.vars['make'] 
     model = app.vars['model'] 
     budget = app.vars['budget'] 
     city = app.vars['city']
 
-    if budget < 100 or budget > 40000:
+    if budget < 100 or budget > 30000:
         return redirect('/error')
 
     #--- loading Machine learned data for this model ---
@@ -219,26 +221,39 @@ def showresult():
         
     app.df2 = pd.read_csv('CAR_PRICE_DATA_%s_%s.csv' % (make, model))
     overpricefactor = 1.1
+
     lower = 0.7
     upper = 1.2
 
     dfr = app.df2[ app.df2.PRICE < app.df2.PRICEPRED*overpricefactor]
     dfr = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
     dfr['dt'] = pd.to_datetime(dfr['POSTTIME'])
-
     today = date.today()
     filter_date = today - timedelta(days=20)
     dfr = dfr[ dfr['dt'] >  filter_date ]  
-
     dfr = dfr.sort_values(by=['POSTTIME','YEAR'],ascending=[False, False])[
       ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]
-
     #dfi['IMAGE'] = dfi['IMGLINK'].apply(lambda x: '<img src="{}" />'.format(x) if x else '') #
     dfresult = dfr[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
     dfresult['PRICEPRED'] = dfresult.PRICEPRED.astype(int)
 
-    if dfresult.shape[0] < 2 :
-        return redirect('/error')
+    if dfresult.shape[0] < 5 :
+        lower = 0.2
+        upper = 1.7
+        dfr = app.df2[ app.df2.PRICE < app.df2.PRICEPRED*overpricefactor]
+        dfr = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
+        dfr['dt'] = pd.to_datetime(dfr['POSTTIME'])
+        today = date.today()
+        filter_date = today - timedelta(days=30)
+        dfr = dfr[ dfr['dt'] >  filter_date ]  
+        dfr = dfr.sort_values(by=['POSTTIME','YEAR'],ascending=[False, False])[
+          ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]
+        #dfi['IMAGE'] = dfi['IMGLINK'].apply(lambda x: '<img src="{}" />'.format(x) if x else '') #
+        dfresult = dfr[['POSTTIME', 'CITY', 'STATE','YEAR','MILES','TITLE','PRICE','PRICEPRED','URL','IMGLINK']]  #'IMAGE',
+        dfresult['PRICEPRED'] = dfresult.PRICEPRED.astype(int)
+
+        if dfresult.shape[0] < 2 :
+            return redirect('/error')
 
     #p = plot_price_distr()
     p = plot_result_price_distr(dfresult)
@@ -609,15 +624,16 @@ def plot_result_price_distr(df):
     pdmax = pdiff.max()
     for r in pdiff:
         if r > 0:
-            x = (pdmax - r) / (abs(pdmax) +0.1) * 180
+            x = (pdmax - r) / (abs(pdmax) +0.1) * 200
             mycolor.append("#%02x%02x%02x" % (0, int(x), 255)) #blue, deal!!
         else:
-            x = (r - pdmin) / ( abs(pdmin) +0.1) * 180
+            x = (r - pdmin) / ( abs(pdmin) +0.1) * 200
             mycolor.append("#%02x%02x%02x" % (255, 0, int(x))) #red
     
     yearmax = year.max()
     yearmin = year.min()
-    radii = (year - yearmin) / (yearmax - yearmin + 1.0) * 4 + 2
+    #radii = (year - yearmin) / (yearmax - yearmin + 1.0) * 4 + 2
+    radii = (year - yearmin) / (yearmax - yearmin + 1.0) * 40 + 10
     myrad   = radii.tolist()
     
     source = ColumnDataSource(data=dict( x=mymile, y=myprice, mile=mymile, year=myyear, desc=myprice,
@@ -652,7 +668,7 @@ def plot_result_price_distr(df):
     taptool = p.select(type=TapTool)
     taptool.callback = OpenURL(url=url)
 
-    p.circle(x='x', y='y', radius='rad', fill_color='c', fill_alpha=0.7, line_color=None, source=source) 
+    p.circle(x='x', y='y', size='rad', fill_color='c', fill_alpha=0.7, line_color=None, source=source) 
     p.xaxis[0].axis_label = 'Mileage (k)'
     p.yaxis[0].axis_label = 'Price ($)'
     p.title.text_font_style = "bold"

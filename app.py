@@ -229,7 +229,7 @@ def showresult():
     dfr = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
     dfr['dt'] = pd.to_datetime(dfr['POSTTIME'])
     today = date.today()
-    filter_date = today - timedelta(days=30)
+    filter_date = today - timedelta(days=20)
     dfr = dfr[ dfr['dt'] >  filter_date ]  
     dfr = dfr.sort_values(by=['POSTTIME','YEAR'],ascending=[False, False])[
       ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]

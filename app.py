@@ -119,20 +119,20 @@ def carvalue():
     X_mycar.append(dic)
 
 
-    if not os.path.isfile('CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
+    if not os.path.isfile('./data/CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
         return redirect('/error')
 
-    myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
+    myfile='./data/CAR_PRICE_DATA_%s_%s.csv'%(make,model)
     app.df = pd.read_csv(myfile) 
 
     app.df = app.df.drop(app.df[(app.df.PRICE > 50000)].index)
     app.df = app.df.drop(app.df[(app.df.PRICE > 25000) & (app.df.YEAR < 2013)].index)
 
 
-    if not os.path.isfile('ensemble_pipeline_%s_%s.dill' %(make, model)) :
+    if not os.path.isfile('./data/ensemble_pipeline_%s_%s.dill' %(make, model)) :
         return redirect('/error')
     
-    ensemble_pipeline = dill.load(open('ensemble_pipeline_%s_%s.dill' %(make, model), 'r'))
+    ensemble_pipeline = dill.load(open('./data/ensemble_pipeline_%s_%s.dill' %(make, model), 'r'))
     
     y_mycar = ensemble_pipeline.predict(X_mycar)
     predprice = y_mycar[0]
@@ -168,7 +168,7 @@ def graph():
         app.vars['budget_pri'] = 1
     '''
     #--------------------------------------------
-    myfile='CAR_PRICE_DATA_%s_%s.csv'%(make,model)
+    myfile='./data/CAR_PRICE_DATA_%s_%s.csv'%(make,model)
     app.df = pd.read_csv(myfile) #, low_memory=False
 
     #p1 = figure(title='Post traffic %s' % city, x_axis_label='Posts', y_axis_label='Weekday', tools= TOOLS)
@@ -216,10 +216,10 @@ def showresult():
 
     #--- loading Machine learned data for this model ---
     #myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
-    if not os.path.isfile('CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
+    if not os.path.isfile('./data/CAR_PRICE_DATA_%s_%s.csv' %(make, model)) :
         return redirect('/error')
         
-    app.df2 = pd.read_csv('CAR_PRICE_DATA_%s_%s.csv' % (make, model))
+    app.df2 = pd.read_csv('./data/CAR_PRICE_DATA_%s_%s.csv' % (make, model))
     overpricefactor = 1.1
 
     lower = 0.7
@@ -229,7 +229,7 @@ def showresult():
     dfr = dfr[ (dfr.PRICE > budget*lower) & (dfr.PRICE < budget*upper) & (dfr.CITY==city)]
     dfr['dt'] = pd.to_datetime(dfr['POSTTIME'])
     today = date.today()
-    filter_date = today - timedelta(days=20)
+    filter_date = today - timedelta(days=30)
     dfr = dfr[ dfr['dt'] >  filter_date ]  
     dfr = dfr.sort_values(by=['POSTTIME','YEAR'],ascending=[False, False])[
       ['POSTTIME','YEAR','MILES','TITLE','CITY', 'STATE','PRICE','PRICEPRED','IMGLINK','URL']]
@@ -846,7 +846,7 @@ def simple_mpl():
     ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
     fig.autofmt_xdate()
     '''
-    df2 = pd.read_csv('CAR_PRICE_DATA_camry.csv')
+    df2 = pd.read_csv('./data/CAR_PRICE_DATA_camry.csv')
 
     sns.set_style('darkgrid')
     fig, ax = plt.subplots()

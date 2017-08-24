@@ -4,6 +4,8 @@ import re
 from bs4 import BeautifulSoup
 from urlparse import urljoin
 from datetime import datetime
+import pandas as pd 
+import numpy as np 
 import math
 import csv
 import random
@@ -75,7 +77,7 @@ def filter_irregular_char(mystring):  # delete irregular chars from string, for 
     return ss
 
 
-@retry(stop_max_attempt_number=1000,wait_fixed=600)
+@retry(stop_max_attempt_number=100,wait_random_min=400, wait_random_max=1000)
 def analyze_page(page_link):
     title=''
     imglink=''
@@ -210,9 +212,10 @@ def newer_than_date(date_string, cutoff_string='2017-01-01 00:00'):
 def get_all_pages(csvfilename, URLs):
     
     wrongcount = 0
-    maxwrong = 10
+    maxwrong = 20
     pagecount = startpage
     skipcount = 0
+    notitlecount = 0
     maxskipwait = 30
     
     for myurl in URLs: 
@@ -243,11 +246,11 @@ def get_all_pages(csvfilename, URLs):
     
         for i, result in enumerate(results_page) :
 
-            y = random.uniform(0.5,2)
+            y = random.uniform(0.2,3)
             time.sleep(y)
 
             if skipcount > maxskipwait:
-                y = random.uniform(10,20)
+                y = random.uniform(5,20)
                 print 'Skiped too many, sleep for %d sec...' % y
                 skipcount = 0
                 time.sleep(y)
@@ -259,7 +262,7 @@ def get_all_pages(csvfilename, URLs):
             else:
                 wrongcount += 1
                 if wrongcount > maxwrong:
-                    print 'Max wrong reached, break'
+                    print 'Max older date reached, break'
                     break
                 
             page_link = result[2] #urls
@@ -271,7 +274,10 @@ def get_all_pages(csvfilename, URLs):
             mytitle, myimglink, mymessage, myattr_model, myattributes = analyze_page(page_link)
             if mytitle == '' :
                 print '        ^^^^^^^^^^^^^^ Skip this entry ^^^^^^^^^^^^  [ no title ] '
-                skipcount += 1
+                #skipcount += 1
+                notitlecount += 1
+                if notitlecount > 30:
+                    break
                 continue
                 
             myyear = get_year(mytitle, myattr_model) 
@@ -286,7 +292,7 @@ def get_all_pages(csvfilename, URLs):
                 skipcount += 1
             else: 
                 print '  Title =', mytitle
-                print '        === >> [[ Saved ]]'
+                print '    ===== >> [[ Cached ]]'
                 # append data
                 pidl.append(result[1].encode('ascii', 'ignore'))
                 posttimel.append(result[3].encode('ascii', 'ignore'))
@@ -321,12 +327,19 @@ def get_all_pages(csvfilename, URLs):
 
         print 'Page #', pagecount, 'of', len(URLs)+startpage, ':', make, model, '@', city ,'finished !'
         pagecount += 1
-        print '==================== >>> rest a bit ...'
+        y = random.uniform(5,30)
+        print '==================== >>> rest a bit ...  %.1f seconds' % y
+        time.sleep(y)
         if pagecount >= pagemax:
             print '==================== >>> Pagemax reached. Done.'
             break
-        y = random.uniform(10,45)
-        time.sleep(y)
+        if wrongcount > maxwrong:
+            print '==================== >>> Newer results done.'
+            break
+        if notitlecount > 30:
+            print '==================== >>> too many posts with no title. Check IP'
+            break
+        
     return 0
               
 
@@ -366,7 +379,7 @@ mymodellist=['x1','x2','x3', 'x5', 'x6','328i' ,'328xi','335i', '335xi', '525i',
 mymake='audi'
 mymodellist=['a3' ,'a4','a5', 'a6', 'a7', 'a8', 's3', 'rs3','s7','rs7', 's8', 'q3','q5', 'q7','tt' ]
 
-mymake='vw'
+mymake='volkswagen'
 mymodellist=['jetta' ,'passat','cc', 'golf', 'tiguan', 'touareg', 'beetle' ]
 
 mymake='hyundai'
@@ -391,58 +404,83 @@ citystatelist = [ ('sfbay', 'CA'), ('losangeles', 'CA'),('newyork', 'NY'), ('sea
 
 
 
-filterdate = '2017-01-01 00:00'
-pagemax = 30
+filterdate = '2017-07-22 00:00'
+
+pagemax = 20
 #startpage = 0 #1  #default =0
 
+#city = 'sfbay'
+#state = 'CA'
 
-city = 'sfbay'
-state = 'CA'
-
-make = 'nissan'
-model = 'sentra'
-
-#citystatepagelist = [('sfbay', 'CA', 0), ('losangeles', 'CA', 0),('newyork', 'NY', 0), ('seattle', 'WA', 0),('orangecounty', 'CA', 0), ('sandiego','CA', 0), ('chicago', 'IL', 0), ('sacramento','CA', 0), ('portland', 'OR', 0), ('phoenix', 'AZ', 0), ('washingtondc', 'DC', 0), ('atlanta', 'GA', 0), ('miami', 'FL', 0), ('boston', 'MA', 0),('dallas', 'TX', 0) ,('inlandempire', 'CA', 0), ('denver', 'CO', 0), ('minneapolis', 'MN', 0), ('austin', 'TX', 0), ('houston', 'TX', 0), ('tampa', 'FL', 0), ('orlando', 'FL', 0), ('newjersey', 'NJ', 0), ('philadelphia', 'PA', 0), ('lasvegas', 'NV', 0), ('detroit','MI', 0) , ('stlouis', 'MO', 0) ]
+#makemodellist = [  ('toyota', 'camry'), ('toyota', 'corolla'), ('toyota', 'rav4'), ('honda', 'accord'), ('honda', 'civic'), ('honda', 'crv'), ('nissan', 'altima'), ('nissan', 'maxima'), ('nissan', 'sentra'), ('chevrolet', 'malibu'), ('chevrolet', 'impala'), ('chevrolet', 'camaro'), ('ford', 'focus'), ('ford', 'fusion'), ('ford', 'mustang'), ('ford', 'taurus'), ('ford', 'escape'), ('jeep', 'wrangler'), ('subaru', 'outback'), ('subaru', 'forester'), ('volkswagen', 'passat'), ('volkswagen', 'jetta'), ('dodge', 'charger'), ('chrysler', '300'), ('hyundai', 'sonata')  ]
 
 
-citystatepagelist = [('sfbay', 'CA', 0), ('losangeles', 'CA', 0),('newyork', 'NY', 0), ('seattle', 'WA', 0),('orangecounty', 'CA', 0), ('sandiego','CA', 0), ('chicago', 'IL', 0), ('sacramento','CA', 0), ('portland', 'OR', 0), ('phoenix', 'AZ', 0), ('washingtondc', 'DC', 0), ('atlanta', 'GA', 0), ('miami', 'FL', 0), ('boston', 'MA', 0),('dallas', 'TX', 0) ,('inlandempire', 'CA', 0), ('denver', 'CO', 0), ('minneapolis', 'MN', 0), ('austin', 'TX', 0), ('houston', 'TX', 0), ('tampa', 'FL', 0), ('orlando', 'FL', 0), ('newjersey', 'NJ', 0), ('philadelphia', 'PA', 0), ('lasvegas', 'NV', 0), ('detroit','MI', 0) , ('stlouis', 'MO', 0) ]
+makemodellist = [  ('toyota', 'camry'), ('toyota', 'corolla'), ('toyota', 'rav4'), ('honda', 'accord'), ('honda', 'civic'), ('honda', 'crv'), ('nissan', 'altima'), ('nissan', 'maxima'), ('nissan', 'sentra'), ('chevrolet', 'malibu'), ('chevrolet', 'impala'), ('chevrolet', 'camaro'), ('ford', 'focus'), ('ford', 'fusion'), ('ford', 'mustang'), ('ford', 'taurus'), ('ford', 'escape'), ('jeep', 'wrangler'), ('subaru', 'outback'), ('subaru', 'forester'), ('volkswagen', 'passat'), ('volkswagen', 'jetta'), ('dodge', 'charger'), ('chrysler', '300'), ('hyundai', 'sonata')  ]
 
-# 
+#
 
-
-for city, state, startpage in citystatepagelist :
-
-    url = 'https://'+ city + '.craigslist.org/search/cto'
-    base_url = 'https://'+ city + '.craigslist.org'
-    min_year ='1995'
-    max_year ='2018'
-
-    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0'
-    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30'
-    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36'
-
-    head = {'User-Agent': user_agent} 
-
-    # "auto_make_model": make+'%20'+model
-
-    params={"query": make+'+'+model, "hasPic": 1, "min_auto_year": min_year, "max_auto_year": max_year}
-
-    response = requests.get(url, params, headers=head)  # first search result page
-    #print response.url
-    #response.text[:1000] + "..."
-
-    print '-----------------------------------------------------'
-    print '  Getting data for ', make.title() , model.title(), 'at', city.title()
-    print '-----------------------------------------------------'
+makemodellist = [ ('honda', 'civic') ]
 
 
-    urls = get_search_page_urls(response)
+for make, model in makemodellist:
 
-    print 'We start from search page #', startpage, 'out of', len(urls)
 
-    get_all_pages('CAR_PRICE_DATA.csv',urls[startpage:])
+    #citystatepagelist = [ ('sfbay', 'CA', 0), ('losangeles', 'CA', 0), ('newyork', 'NY', 0), ('seattle', 'WA', 0), ('orangecounty', 'CA', 0), ('sandiego','CA', 0), ('chicago', 'IL', 0), ('sacramento','CA', 0), ('portland', 'OR', 0), ('phoenix', 'AZ', 0), ('washingtondc', 'DC', 0), ('atlanta', 'GA', 0), ('miami', 'FL', 0), ('boston', 'MA', 0), ('dallas', 'TX', 0), ('inlandempire', 'CA', 0), ('denver', 'CO', 0), ('minneapolis', 'MN', 0), ('austin', 'TX', 0), ('houston', 'TX', 0), ('tampa', 'FL', 0), ('orlando', 'FL', 0), ('newjersey', 'NJ', 0), ('philadelphia', 'PA', 0), ('lasvegas', 'NV', 0), ('detroit','MI', 0) , ('stlouis', 'MO', 0)  ]
 
-    print '==================================== FINISHED =========================================='
+    citystatepagelist =  [   ('sfbay', 'CA', 0), ('losangeles', 'CA', 0), ('newyork', 'NY', 0), ('seattle', 'WA', 0), ('orangecounty', 'CA', 0), ('sandiego','CA', 0), ('chicago', 'IL', 0), ('sacramento','CA', 0), ('portland', 'OR', 0), ('phoenix', 'AZ', 0), ('washingtondc', 'DC', 0), ('atlanta', 'GA', 0), ('miami', 'FL', 0), ('boston', 'MA', 0), ('dallas', 'TX', 0), ('inlandempire', 'CA', 0), ('denver', 'CO', 0), ('minneapolis', 'MN', 0), ('austin', 'TX', 0), ('houston', 'TX', 0), ('tampa', 'FL', 0), ('orlando', 'FL', 0), ('newjersey', 'NJ', 0), ('philadelphia', 'PA', 0), ('lasvegas', 'NV', 0), ('detroit','MI', 0) , ('stlouis', 'MO', 0)   ]
+
+    #  
+
+
+
+    for ind, (city, state, startpage) in enumerate(citystatepagelist) :
+
+        myfile='CAR_PRICE_DATA.csv'
+        df = pd.read_csv(myfile) 
+        if ind+1 < len(citystatepagelist):
+            df = df[(df.CITY == citystatepagelist[ind+1][0]) & (df.MODEL == model)]
+        else:
+            df = df[(df.CITY == city) & (df.MODEL == model)]
+        df['DATETIME'] = pd.to_datetime(df['POSTTIME'])
+        latest_ptime = df.DATETIME.values.max()
+        latest_datetime = pd.to_datetime(str(latest_ptime)) 
+        filterdate = latest_datetime.strftime('%Y-%m-%d %H:%M')
+
+        print '=============================================================================='
+        print '      Filter date for <', make.title(), model.title(), '> is ', filterdate
+        print '=============================================================================='
+
+        url = 'https://'+ city + '.craigslist.org/search/cto'
+        base_url = 'https://'+ city + '.craigslist.org'
+        min_year ='1995'
+        max_year ='2018'
+
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0'
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30'
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36'
+
+        head = {'User-Agent': user_agent} 
+
+        # "auto_make_model": make+'%20'+model
+
+        params={"query": make+'+'+model, "hasPic": 1, "min_auto_year": min_year, "max_auto_year": max_year}
+
+        response = requests.get(url, params, headers=head)  # first search result page
+        #print response.url
+        #response.text[:1000] + "..."
+
+        print '------------------------------------------------------------------------------'
+        print '      Getting data for ', make.title() , model.title(), 'at', city.title()
+        print '------------------------------------------------------------------------------'
+
+
+        urls = get_search_page_urls(response)
+
+        print 'We start from search page #', startpage, 'out of', len(urls)
+
+        get_all_pages('CAR_PRICE_DATA.csv',urls[startpage:])
+
+        print '==================================== FINISHED =========================================='
 
 
 

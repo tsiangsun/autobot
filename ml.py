@@ -221,7 +221,7 @@ ensemble_pipeline = Pipeline([
        ])
 
 
-myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA_1.csv'
+myfile='/Users/xiangs/Dropbox/github/cardeal/CAR_PRICE_DATA_1.csv'
 df = pd.read_csv(myfile)
 
 df = df.drop_duplicates('IMGLINK')
@@ -238,7 +238,7 @@ df = df.drop(df[(df.MILES > 400000)].index)
 df1 = df
 
 
-myfile='/Users/xiangs/github/cardeal/CAR_PRICE_DATA.csv'
+myfile='/Users/xiangs/Dropbox/github/cardeal/CAR_PRICE_DATA.csv'
 df = pd.read_csv(myfile)
 
 df = df.drop_duplicates('IMGLINK')
@@ -254,8 +254,8 @@ df = df.drop(df[(df.MILES > 400000)].index)
 
 #---------------------------------------------------------------
 
-make = 'volkswagen'
-model = 'passat'
+make = 'honda'
+model = 'civic'
 
 #---------------------------------------------------------------
 
@@ -280,10 +280,10 @@ print '---------------------------------------'
 
 dfy = pd.DataFrame({'PRICEPRED': y_pred})
 dfp = dfa.join(dfy, lsuffix='_dfa', rsuffix='_dfy')
-dfp.to_csv('/Users/xiangs/github/cardeal/CAR_PRICE_DATA_%s_%s.csv' % (make, model), index = False)
+dfp.to_csv('/Users/xiangs/Dropbox/github/cardeal/CAR_PRICE_DATA_%s_%s.csv' % (make, model), index = False)
 
 import dill
-dill.dump(ensemble_pipeline, open('/Users/xiangs/github/cardeal/ensemble_pipeline_%s_%s.dill' % (make, model), 'w'))
+dill.dump(ensemble_pipeline, open('/Users/xiangs/Dropbox/github/cardeal/ensemble_pipeline_%s_%s.dill' % (make, model), 'w'))
 
 # -------------------------------------------------
 from mpl_toolkits.mplot3d import Axes3D
